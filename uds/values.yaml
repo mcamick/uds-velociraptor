@@ -1,0 +1,39 @@
+## uds-hello-world-config chart values
+
+## hello-world chart values
+image:
+  repository: registry.sonic.mil/project-blue/templates/mission-app-template/hello-world
+  pullPolicy: Always
+  tag: "###ZARF_CONST_VERSION###"
+
+serviceAccount:
+  create: false
+  automount: false
+
+podSecurityContext:
+  fsGroup: 997
+
+securityContext:
+  capabilities:
+    drop:
+      - ALL
+  runAsNonRoot: true
+  runAsUser: 997
+
+service:
+  port: 8080
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 8080
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 8080
+
+uds:
+  domain: "###ZARF_VAR_DOMAIN###"
+  sso:
+    enabled: "###ZARF_VAR_ENABLE_SSO###"

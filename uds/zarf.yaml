@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/defenseunicorns/zarf/main/zarf.schema.json
+kind: ZarfPackageConfig
+metadata:
+  name: hello-world
+  version: "###ZARF_PKG_TMPL_VERSION###"
+  description: "PBME Mission App Template"
+
+constants:
+  - name: VERSION
+    value: "###ZARF_PKG_TMPL_VERSION###"
+
+variables:
+  - name: DOMAIN
+    description: "The domain for accessing endpoints"
+  - name: ENABLE_SSO
+    description: "Whether or not to deploy the uds package with an sso client"
+
+components:
+  - name: hello-world
+    required: true
+    charts:
+      - name: uds-hello-world-config
+        namespace: hello-world
+        version: 0.0.0 # x-release-it-version
+        localPath: chart/
+        valuesFiles:
+          - values.yaml
+      - name: hello-world
+        version: 0.0.0 # x-release-it-version
+        localPath: ../chart/
+        namespace: hello-world
+        valuesFiles:
+          - values.yaml
+    images:
+      - "registry.sonic.mil/project-blue/templates/mission-app-template/hello-world:###ZARF_PKG_TMPL_VERSION###"

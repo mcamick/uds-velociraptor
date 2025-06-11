@@ -1,0 +1,82 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/defenseunicorns/maru-runner/refs/heads/main/tasks.schema.json
+includes:
+  # Including this task file locally will require
+  # either a MARU_AUTH env var or `maru auth login`
+  #
+  # export MARU_AUTH="{\"gitlab.sonic.mil\": \"$GITLAB_PERSONAL_ACCESS_TOKEN\"}"
+  # OR
+  # maru auth login gitlab.sonic.mil --token '$GITLAB_PERSONAL_ACCESS_TOKEN'`
+
+  ## Container Image
+  # renovate: depName=project-blue/components/container-image
+  - container-image: https://gitlab.sonic.mil/api/v4/projects/4230/repository/files/tasks%2Fcontainer-image%2Eyaml/raw?ref=0.9.0
+
+  ## Zarf Package
+  # renovate: depName=project-blue/components/zarf-package
+  - zarf-package: https://gitlab.sonic.mil/api/v4/projects/4187/repository/files/tasks%2Fzarf-package%2Eyaml/raw?ref=0.12.6
+
+  ## Lint
+  # renovate: depName=project-blue/components/lint
+  - lint: https://gitlab.sonic.mil/api/v4/projects/4335/repository/files/tasks%2Flint%2Eyaml/raw?ref=0.3.1
+
+  ## Release
+  # renovate: depName=project-blue/components/release
+  - release: https://gitlab.sonic.mil/api/v4/projects/4212/repository/files/tasks%2Frelease%2Eyaml/raw?ref=0.8.9
+
+  ## Renovate
+  # renovate: depName=project-blue/components/renovate
+  - renovate: https://gitlab.sonic.mil/api/v4/projects/4120/repository/files/tasks%2Frenovate%2Eyaml/raw?ref=0.9.2
+
+  ## Certificate to Ship
+  # renovate: depName=project-blue/components/certificate-to-ship
+  - cts: https://gitlab.sonic.mil/api/v4/projects/4255/repository/files/tasks%2Fcts%2Eyaml/raw?ref=0.5.0
+
+  ## Local
+  - local: tasks/local.yaml
+
+  ## Test
+  - test: tasks/test.yaml
+
+tasks:
+  - name: dev
+    description: Build, deploy, and test the hello-world package locally
+    actions:
+      - task: local:start-registry
+
+      - task: container-image:build
+        with:
+          dockerfile: src/hello-world/Dockerfile
+          context: src/hello-world/
+          image_name: localhost:5000/project-blue/templates/mission-app-template/hello-world
+          image_tag: dev
+          platform: linux/$UDS_ARCH
+          push: "true"
+
+      - task: zarf-package:build
+        with:
+          arch: $UDS_ARCH
+          version: dev
+          dir: uds/
+          options: "--registry-override registry.sonic.mil=localhost:5000"
+
+      - task: integration
+
+  - name: setup
+    description: Create and configure a test cluster then deploy the hello-world package
+    actions:
+      - task: zarf-package:setup-k3d-test-cluster
+
+      - description: Deploy the hello-world package
+        task: zarf-package:deploy
+        with:
+          ref: zarf-package-hello-world-*.tar.zst
+          config: uds/zarf-config-dev.yaml
+
+  - name: integration
+    description: Run setup and then perform integration tests against the hello-world package
+    actions:
+      - description: Run the setup tasks
+        task: setup
+
+      - description: Run all project tests
+        task: test:all

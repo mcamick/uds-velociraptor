@@ -1,0 +1,127 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+
+# -------------------------------------------------------------
+# Workflow Rules
+# -------------------------------------------------------------
+workflow:
+  rules:
+    - if: $CI_COMMIT_TAG
+      variables:
+        PACKAGE_TAG: $CI_COMMIT_TAG
+    - when: always
+      variables:
+        PACKAGE_TAG: dev-$CI_COMMIT_SHORT_SHA
+
+# -------------------------------------------------------------
+# Component Includes
+# -------------------------------------------------------------
+include:
+  ## Lint: All
+  - component: $CI_SERVER_FQDN/project-blue/components/lint/all@0.3.1
+
+  ## Container Image: Build
+  - component: $CI_SERVER_FQDN/project-blue/components/container-image/build@0.9.0
+    inputs:
+      dockerfile: src/hello-world/Dockerfile
+      context: src/hello-world/
+      registry_username: $PB_REGISTRY1_USERNAME
+      registry_password: $PB_REGISTRY1_TOKEN
+      registry: registry1.dso.mil
+      image_name: $CI_REGISTRY_IMAGE/hello-world
+      image_tag: $PACKAGE_TAG
+      push: "true"
+
+  ## Zarf Package: Build
+  - component: $CI_SERVER_FQDN/project-blue/components/zarf-package/build@0.12.6
+    inputs:
+      dir: uds/
+      version: $PACKAGE_TAG
+      needs:
+        - container-image:build
+
+  ## Zarf Package: Test
+  - component: $CI_SERVER_FQDN/project-blue/components/zarf-package/test@0.12.6
+    inputs:
+      task: integration
+
+  ## Zarf Package: Scan (Trivy)
+  - component: $CI_SERVER_FQDN/project-blue/components/zarf-package/scan-trivy@0.12.6
+    inputs:
+      ref: zarf-package-hello-world-amd64-$PACKAGE_TAG.tar.zst
+
+  ## Zarf Package: Scan (Check Root)
+  - component: $CI_SERVER_FQDN/project-blue/components/zarf-package/scan-root@0.12.6
+    inputs:
+      ref: zarf-package-hello-world-amd64-$PACKAGE_TAG.tar.zst
+
+  ## Zarf Package: Scan (Grype)
+  - component: $CI_SERVER_FQDN/project-blue/components/zarf-package/scan-grype@0.12.6
+    inputs:
+      ref: zarf-package-hello-world-amd64-$PACKAGE_TAG.tar.zst
+
+  ## Zarf Package: Scan (OSCAP)
+  - component: $CI_SERVER_FQDN/project-blue/components/zarf-package/scan-oscap@0.12.6
+    inputs:
+      ref: zarf-package-hello-world-amd64-$PACKAGE_TAG.tar.zst
+
+  ## Zarf Package: Scan (ZAP)
+  - component: $CI_SERVER_FQDN/project-blue/components/zarf-package/scan-zap@0.12.6
+    inputs:
+      test_task: integration
+
+  ## Zarf Package: Scan (ClamAV)
+  - component: $CI_SERVER_FQDN/project-blue/components/zarf-package/scan-clamav@0.12.6
+    inputs:
+      ref: zarf-package-hello-world-amd64-$PACKAGE_TAG.tar.zst
+
+  ## Zarf Package: Deploy
+  - component: $CI_SERVER_FQDN/project-blue/components/zarf-package/deploy@0.12.6
+    inputs:
+      cluster_type: eks
+      eks_cluster_name: mission-inf-proto
+      ref: zarf-package-hello-world-amd64-$PACKAGE_TAG.tar.zst
+      config: uds/zarf-config-proto.yaml
+
+  ## CTS Pipeline - Runs on Tag Pipelines
+  - component: $CI_SERVER_FQDN/project-blue/components/certificate-to-ship/cts@0.5.0
+    inputs:
+      zarf_package_name: hello-world
+      needs: [zarf-package:build]
+      test_task: integration
+
+  ## Release: Bump
+  - component: $CI_SERVER_FQDN/project-blue/components/release/bump@0.8.9
+
+  ## Release: Release
+  - component: $CI_SERVER_FQDN/project-blue/components/release/release@0.8.9
+
+  ## Renovate: Dry Run
+  - component: $CI_SERVER_FQDN/project-blue/components/renovate/dry-run@0.9.2
+    inputs:
+      github_read_token: $github_read_only_api_token
+      gitlab_read_token: $BOT_TOKEN
+      gitlab_write_token: $BOT_TOKEN
+      git_private_key_b64: $BOT_GPG_KEY
+      dry_run: full
+
+  ## Renovate: Scheduled
+  - component: $CI_SERVER_FQDN/project-blue/components/renovate/scheduled@0.9.2
+    inputs:
+      github_read_token: $github_read_only_api_token
+      gitlab_read_token: $BOT_TOKEN
+      gitlab_write_token: $BOT_TOKEN
+      git_private_key_b64: $BOT_GPG_KEY
+
+  # ## Notify: Mattermost
+  # - component: $CI_SERVER_FQDN/project-blue/components/notify/mattermost@0.6.2
+  #   inputs:
+  #     webhook: $MATTERMOST_WEBHOOK_URL
+
+stages:
+  - lint
+  - build
+  - scan
+  - test
+  - deploy
+  - release
+  - renovate

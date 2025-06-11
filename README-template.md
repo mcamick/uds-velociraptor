@@ -1,4 +1,4 @@
-# #TEMPLATE_APPLICATION_DISPLAY_NAME#
+# Hello World
 
 This application is designed to be deployed to the Project Blue Mission Environment (PBME).
 
@@ -6,7 +6,7 @@ This application is designed to be deployed to the Project Blue Mission Environm
 
 ## Pre-requisites
 
-The #TEMPLATE_APPLICATION_DISPLAY_NAME# Package expects to be deployed on top of [UDS Core](https://github.com/defenseunicorns/uds-core) with the dependencies listed below being configured prior to deployment.
+The Hello World Package expects to be deployed on top of [UDS Core](https://github.com/defenseunicorns/uds-core) with the dependencies listed below being configured prior to deployment.
 
 #### Dependency information
 

@@ -1,0 +1,38 @@
+{
+    "$schema": "https://unpkg.com/release-it@18/schema/release-it.json",
+    "git": {
+        "tag": false,
+        "tagMatch": "\"*\"",
+        "commitMessage": "chore: release version ${version}"
+    },
+    "gitlab": {
+        "release": false,
+        "origin": "https://gitlab.sonic.mil"
+    },
+    "plugins": {
+        "@j-ulrich/release-it-regex-bumper": {
+            "in": "chart/Chart.yaml",
+            "out": [
+               {
+                    "files": [
+                     "uds/chart/Chart.yaml",
+                     "chart/Chart.yaml",
+                     "uds/zarf.yaml"
+                  ],
+                    "search": {
+                        "pattern": "(.*)\\d+\\.\\d+\\.\\d+ # x-release-it-version",
+                        "flags": "g"
+                    },
+                    "replace": "${1}{{version}} # x-release-it-version"
+                }
+            ]
+        },
+        "@release-it/conventional-changelog": {
+            "infile": "CHANGELOG.md",
+            "preset": {
+                "name": "conventionalcommits",
+                "preMajor": true
+            }
+        }
+    }
+}

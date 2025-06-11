@@ -1,0 +1,28 @@
+tasks:
+  - name: all
+    description: Checks the kubernetes cluster for Hello World
+    actions:
+      - description: Hello World Front End Health Check
+        wait:
+          cluster:
+            kind: Deployment
+            name: hello-world
+            namespace: hello-world
+            condition: Available
+
+      - description: Hello World UI Status Check
+        maxRetries: 30
+        cmd: |
+          STATUS=$(curl -L -o /dev/null -s -w "%{http_code}\n" https://hello-world.uds.dev)
+          echo "Hello World system status: ${STATUS}"
+          if [ "$STATUS" != "200" ]; then
+            sleep 10
+            exit 1
+          fi
+
+  - name: placeholder
+    actions:
+      - cmd: kubectl get pods -n hello-world
+      - cmd: kubectl get secrets -n hello-world
+      - cmd: kubectl get packages -n hello-world
+      - cmd: kubectl get events -n hello-world

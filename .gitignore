@@ -1,0 +1,7 @@
+# Container image and Zarf package artifacts
+*.tar
+*.tar.zst
+zarf-sbom/
+
+# CI/CD Pipeline artifacts
+.ci_artifacts/
