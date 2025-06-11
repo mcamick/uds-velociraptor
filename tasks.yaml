@@ -29,7 +29,7 @@ includes:
 
   ## Certificate to Ship
   # renovate: depName=project-blue/components/certificate-to-ship
-  - cts: https://gitlab.sonic.mil/api/v4/projects/4255/repository/files/tasks%2Fcts%2Eyaml/raw?ref=0.5.0
+  - cts: https://gitlab.sonic.mil/api/v4/projects/4255/repository/files/tasks%2Fcts%2Eyaml/raw?ref=0.5.2
 
   ## Local
   - local: tasks/local.yaml

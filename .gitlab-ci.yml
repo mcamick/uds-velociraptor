@@ -83,7 +83,7 @@ include:
       config: uds/zarf-config-proto.yaml
 
   ## CTS Pipeline - Runs on Tag Pipelines
-  - component: $CI_SERVER_FQDN/project-blue/components/certificate-to-ship/cts@0.5.0
+  - component: $CI_SERVER_FQDN/project-blue/components/certificate-to-ship/cts@0.5.2
     inputs:
       zarf_package_name: hello-world
       needs: [zarf-package:build]
