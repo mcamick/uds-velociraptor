@@ -32,4 +32,4 @@ components:
         valuesFiles:
           - values.yaml
     images:
-      - "registry.sonic.mil/project-blue/templates/mission-app-template/hello-world:###ZARF_PKG_TMPL_VERSION###"
+      - "registry.sonic.mil/project-blue/templates/mission-app-template/images/hello-world:###ZARF_PKG_TMPL_VERSION###"

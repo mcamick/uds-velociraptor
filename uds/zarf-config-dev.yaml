@@ -2,4 +2,4 @@ package:
   deploy:
     set:
       DOMAIN: "uds.dev"
-      ENABLE_SSO: false
+      ENABLE_SSO: true

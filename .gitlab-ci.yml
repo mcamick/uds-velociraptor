@@ -27,7 +27,7 @@ include:
       registry_username: $PB_REGISTRY1_USERNAME
       registry_password: $PB_REGISTRY1_TOKEN
       registry: registry1.dso.mil
-      image_name: $CI_REGISTRY_IMAGE/hello-world
+      image_name: $CI_REGISTRY_IMAGE/images/hello-world
       image_tag: $PACKAGE_TAG
       push: "true"
 
@@ -38,6 +38,7 @@ include:
       version: $PACKAGE_TAG
       needs:
         - container-image:build
+      destination_repository: oci://$CI_REGISTRY_IMAGE
 
   ## Zarf Package: Test
   - component: $CI_SERVER_FQDN/project-blue/components/zarf-package/test@0.12.6
@@ -67,7 +68,7 @@ include:
   ## Zarf Package: Scan (ZAP)
   - component: $CI_SERVER_FQDN/project-blue/components/zarf-package/scan-zap@0.12.6
     inputs:
-      test_task: integration
+      test_task: dast-setup
 
   ## Zarf Package: Scan (ClamAV)
   - component: $CI_SERVER_FQDN/project-blue/components/zarf-package/scan-clamav@0.12.6
@@ -87,7 +88,7 @@ include:
     inputs:
       zarf_package_name: hello-world
       needs: [zarf-package:build]
-      test_task: integration
+      test_task: dast-setup
 
   ## Release: Bump
   - component: $CI_SERVER_FQDN/project-blue/components/release/bump@0.8.9

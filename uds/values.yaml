@@ -2,7 +2,7 @@
 
 ## hello-world chart values
 image:
-  repository: registry.sonic.mil/project-blue/templates/mission-app-template/hello-world
+  repository: registry.sonic.mil/project-blue/templates/mission-app-template/images/hello-world
   pullPolicy: Always
   tag: "###ZARF_CONST_VERSION###"
 
