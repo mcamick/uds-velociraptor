@@ -1,6 +1,7 @@
 # Velociraptor UDS Package
+**⚠️ IMPORTANT**: Currently breaks with SSO enabled due to compatibility issues between keycloak and Velociraptor's authentication mechanism
 
-This package provides Velociraptor - a digital forensics and incident response platform - configured for deployment in the Project Blue Mission Environment (PBME) using UDS (Unicorn Delivery Service).
+This package provides Velociraptor - a digital forensics and incident response platform - configured for deployment using UDS (Unicorn Delivery Service).
 
 Velociraptor is an advanced endpoint monitoring, digital forensics and cyber response platform that enables organizations to collect, analyze and monitor endpoint activities using Velociraptor Query Language (VQL) queries.
 
@@ -118,22 +119,6 @@ Default login:
 2. **Permission Errors**: Container runs as user 1000; ensure image compatibility
 3. **Image Pull Errors**: Verify `wlambert/velociraptor` image accessibility from cluster
 4. **Startup Failures**: Check pod logs for Velociraptor configuration issues
-
-### Debug Commands
-
-```bash
-# Check pod status
-kubectl get pods -n velociraptor
-
-# View pod logs
-kubectl logs -n velociraptor deployment/velociraptor
-
-# Check PVC status
-kubectl get pvc -n velociraptor
-
-# Verify service configuration
-kubectl get svc -n velociraptor
-```
 
 ## Security Considerations
 

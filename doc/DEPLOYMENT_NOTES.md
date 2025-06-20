@@ -1,6 +1,6 @@
 # Velociraptor UDS Deployment Notes
 
-## Deployment Readiness: ✅ READY
+## Deployment Readiness
 
 The Docker Compose configuration has been successfully converted to UDS format and is ready for cluster deployment.
 
@@ -9,7 +9,7 @@ The Docker Compose configuration has been successfully converted to UDS format a
 ### Required Variables
 Before deployment, ensure these Zarf variables are set:
 - `DOMAIN`: The domain for accessing endpoints
-- `ENABLE_SSO`: Whether to enable SSO integration
+- `ENABLE_SSO`: Whether to enable SSO integration # functionality is currently broken for enabled `true`
 
 ### Storage Configuration
 The PVC template supports configurable storage class. Update in `values.yaml`:
