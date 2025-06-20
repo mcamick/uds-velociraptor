@@ -1,8 +1,8 @@
-## uds-hello-world-config chart values
+## uds-velociraptor-config chart values
 
-## hello-world chart values
+## velociraptor chart values
 image:
-  repository: registry.sonic.mil/project-blue/templates/mission-app-template/images/hello-world
+  repository: velociraptor
   pullPolicy: Always
   tag: "###ZARF_CONST_VERSION###"
 
@@ -11,27 +11,82 @@ serviceAccount:
   automount: false
 
 podSecurityContext:
-  fsGroup: 997
+  fsGroup: 1000
 
 securityContext:
+  allowPrivilegeEscalation: false
   capabilities:
     drop:
-      - ALL
+    - ALL
   runAsNonRoot: true
-  runAsUser: 997
+  runAsUser: 1000
+  runAsGroup: 1000
 
 service:
-  port: 8080
+  type: ClusterIP
+  ports:
+    - name: gui
+      port: 8000
+      targetPort: 8000
+    - name: api
+      port: 8001
+      targetPort: 8001
+    - name: frontend
+      port: 8889
+      targetPort: 8889
 
 livenessProbe:
-  httpGet:
-    path: /
-    port: 8080
+  tcpSocket:
+    port: 8889
+  initialDelaySeconds: 60
+  periodSeconds: 30
 
 readinessProbe:
-  httpGet:
-    path: /
-    port: 8080
+  tcpSocket:
+    port: 8889
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+# Environment variables for Velociraptor configuration
+env:
+  - name: VELOX_USER
+    value: "admin"
+  - name: VELOX_PASSWORD
+    value: "admin"  # Should be configured via secret in production
+  - name: VELOX_ROLE
+    value: "administrator"
+  - name: VELOX_SERVER_URL
+    value: "https://velociraptor.###ZARF_VAR_DOMAIN###/"
+  - name: VELOX_FRONTEND_HOSTNAME
+    value: "velociraptor.###ZARF_VAR_DOMAIN###"
+  - name: VELOX_GUI_URL
+    value: "https://velociraptor.###ZARF_VAR_DOMAIN###/"
+  - name: ENABLE_SSO
+    value: "###ZARF_VAR_ENABLE_SSO###"
+  - name: OIDC_ISSUER
+    value: "https://sso.###ZARF_VAR_DOMAIN###/realms/uds"
+  - name: OIDC_CLIENT_ID
+    value: "uds-package-velociraptor"
+  - name: OIDC_CLIENT_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: velociraptor-sso-client
+        key: secret
+
+# Volume configuration
+volumes:
+  - name: velociraptor-data
+    persistentVolumeClaim:
+      claimName: velociraptor-data-pvc
+
+volumeMounts:
+  - name: velociraptor-data
+    mountPath: "/velociraptor"
+
+# Persistence configuration
+persistence:
+  size: 10Gi
+  # storageClass: ""  # Use default storage class if not specified
 
 uds:
   domain: "###ZARF_VAR_DOMAIN###"

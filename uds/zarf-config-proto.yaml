@@ -1,5 +1,0 @@
-package:
-  deploy:
-    set:
-      DOMAIN: "proto.pbme.mil"
-      ENABLE_SSO: false

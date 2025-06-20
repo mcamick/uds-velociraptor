@@ -4,4 +4,4 @@ tasks:
     actions:
       - cmd: docker stop registry || true
       - cmd: docker rm registry || true
-      - cmd: docker run -d -p 5000:5000 --restart=always --name registry registry:2
+      - cmd: docker run -d -p 5003:5000 --restart=always --name registry registry:2

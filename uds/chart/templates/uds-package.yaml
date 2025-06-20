@@ -1,28 +1,32 @@
 apiVersion: uds.dev/v1alpha1
 kind: Package
 metadata:
-  name: hello-world
+  name: velociraptor
 spec:
 {{- if .Values.uds.sso.enabled }}
   sso:
-    - name: Hello World Login
-      clientId: uds-package-hello-world
+    - name: Velociraptor Login
+      clientId: uds-package-velociraptor
       redirectUris:
-        - "https://hello-world.{{ .Values.uds.domain }}/oauth2/callback"
-      secretName: {{ .Values.uds.sso.secretName }}
-      protocol: openid-connect #saml also available see https://uds.defenseunicorns.com/reference/configuration/custom-resources/packages-v1alpha1-cr/
-      enableAuthserviceSelector:
-        app.kubernetes.io/name: {{ .Values.uds.sso.selector }}
+        - "https://velociraptor.{{ .Values.uds.domain }}/auth/oidc/keycloak/callback"
+      secretName: velociraptor-sso-client
+      protocol: openid-connect
+      standardFlowEnabled: true
+      serviceAccountsEnabled: false
+      publicClient: false
+      authorizationServicesEnabled: false
+      directAccessGrantsEnabled: false
+      implicitFlowEnabled: false
 {{- end }}
   # Customize network policies and expose services via istio
   network:
     expose:
-      - service: hello-world
-        podLabels:
-          app: hello-world
+      - service: velociraptor
+        selector:
+          app.kubernetes.io/name: velociraptor
         gateway: tenant
-        host: hello-world
-        port: 8080
+        host: velociraptor
+        port: 8889
     allow:
       - direction: Ingress
         remoteGenerated: Anywhere

@@ -1,28 +1,23 @@
 tasks:
   - name: all
-    description: Checks the kubernetes cluster for Hello World
+    description: Checks the kubernetes cluster for Velociraptor
     actions:
-      - description: Hello World Front End Health Check
+      - description: Velociraptor Frontend Health Check
         wait:
           cluster:
             kind: Deployment
-            name: hello-world
-            namespace: hello-world
+            name: velociraptor
+            namespace: velociraptor
             condition: Available
 
-      - description: Hello World UI Status Check
-        maxRetries: 30
+      - description: Velociraptor Pod Status Check
         cmd: |
-          STATUS=$(curl -L -o /dev/null -s -w "%{http_code}\n" https://hello-world.uds.dev)
-          echo "Hello World system status: ${STATUS}"
-          if [ "$STATUS" != "200" ]; then
-            sleep 10
-            exit 1
-          fi
+          kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=velociraptor -n velociraptor --timeout=60s
+          echo "Velociraptor pods are ready"
 
   - name: placeholder
     actions:
-      - cmd: kubectl get pods -n hello-world
-      - cmd: kubectl get secrets -n hello-world
-      - cmd: kubectl get packages -n hello-world
-      - cmd: kubectl get events -n hello-world
+      - cmd: kubectl get pods -n velociraptor
+      - cmd: kubectl get secrets -n velociraptor
+      - cmd: kubectl get packages -n velociraptor
+      - cmd: kubectl get events -n velociraptor
